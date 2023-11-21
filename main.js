@@ -1,25 +1,60 @@
-// Verificar si es mayor de edad (algoritmo con condicional)
+// Entrega 2
 
-function mayorDeEdad() {
-    let edad = prompt('Ingresa tu edad')
-    if(edad >= 21 && edad !== ''){
-        alert (`Puedes entrar a la Disco porque tienes ${edad}`)
-    } else {
-        alert (`Lo siento NO puedes entrar a la Disco`)
-    } 
+// objeto literal - Todo este esta por console.log
+
+let carros = [{
+  marca: "mazda",
+  modelo: 2022,
+  kilometraje: 20.000
+},
+{
+  marca: "kia",
+  modelo: 2016,
+  kilometraje: 55.000
+},
+{
+  marca: "volkswagen",
+  modelo: 2020,
+  kilometraje: 25.000
+},
+{
+  marca: "chevrolet",
+  modelo: 2015,
+  kilometraje: 75.000
+}
+]
+
+
+let carrosConMenorKilometraje = carros.filter((carro) => carro.kilometraje < 30.000)
+
+console.log(carrosConMenorKilometraje)
+
+
+//funcion constructora
+
+const Carro = function(marca, modelo, kilometraje){
+  this.marca = marca
+  this.modelo = modelo
+  this.kilometraje = kilometraje
 }
 
-mayorDeEdad()
+let carro1 = new Carro("mazda", 2022, 20.000) 
+let carro2 = new Carro("kia", 2016, 55.000) 
+let carro3 = new Carro("volkswagen", 2020, 25.000) 
+let carro4 = new Carro("chevrolet", 2015, 75.000) 
+let carro5 = new Carro("mercedes", 2024, 0) 
 
+let listaCarros = [carro1, carro2, carro3, carro4, carro5]
 
-// Encontrar si es mayor de edad (algoritmo con ciclo)
+function filtrarCarros(){
+  let marcaCarro = prompt("ingresa la marca del carro ").toUpperCase().trim()
+  let resultado = listaCarros.filter((carro) => carro.marca.toUpperCase().includes(marcaCarro))
 
-let edad = [16, 13, 23, 19]
-
-for (let i = 0; i < edad.length; i++) {
-  if(edad[i] >= 21) {
-    console.log('Puedes tomar cerveza')
-  } else {
-    console.log('No puedes tomar cerveza')
+  if(resultado.length > 0){
+    alert(JSON.stringify(resultado))
+  } else{
+    alert(`no tenemos esta marca de carro disponible: ${marcaCarro}`)
   }
 }
+
+filtrarCarros()
