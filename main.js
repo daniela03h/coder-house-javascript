@@ -1,127 +1,103 @@
-const Carro = function(marca, modelo, kilometraje){
-    this.marca = marca
-    this.modelo = modelo
-    this.kilometraje = kilometraje
-  }
-  
-  let carro1 = new Carro("mazda", 2022, 20000) 
-  let carro2 = new Carro("kia", 2016, 55000) 
-  let carro3 = new Carro("volkswagen", 2020, 25000) 
-  let carro4 = new Carro("chevrolet", 2015, 75000) 
-  let carro5 = new Carro("mercedes", 2024, 0) 
-  
-  let listaCarros = [carro1, carro2, carro3, carro4, carro5]
+import fechtProducts from "./fetch-products.js";
 
-  if(localStorage.getItem("carros")){
-    listaCarros = JSON.parse(localStorage.getItem("carros"))
-  } else{
-    listaCarros = listaCarros
-  }
+const spinner = document.querySelector(".spinner");
+const productList = document.querySelector(".product-list");
+const searchInput = document.querySelector('input[type="search"]');
+const categoriesFilters = document.querySelectorAll(".category-btn");
+const cartIcon = document.querySelector(".ph-shopping-cart");
 
-  function filtrarCarros(){
-    let body = document.querySelector("body")
-    let input = document.getElementById("filtrarPorMarca").value
-    const marcaCarro = input.trim().toUpperCase()
-    let resultado = listaCarros.filter((carro) => carro.marca.toUpperCase().includes(marcaCarro))
+const productCard = (product) => `
+<article class="card" style="width: 100%">
+            <img
+              src="${product.image}"
+              class="card-img-top product-image"
+              alt="..."
+            />
+            <div class="card-body">
+              <h5 class="card-title">${product.title}</h5>
+              <p class="card-text">$ ${product.price}</p>
+              <Button class="btn btn-primary add-to-cart-button" data-product-id="${product.id}">
+                <i class="ph ph-plus"></i>Add to Cart</Button
+              >
+            </div>
+          </article>
+`;
 
-    if(resultado.length > 0){
-        const contenedor = document.createElement("div")
-        resultado.forEach((carro) => {
-              const tarjeta = document.createElement("div")
+async function main() {
+  const products = await fechtProducts();
 
+  const productsToDisplay = products
+    .map((product) => productCard(product))
+    .join("\n");
+  spinner.style.display = "none";
+  productList.innerHTML = productsToDisplay;
 
-            const marca = document.createElement("h3")
-            marca.textContent =  `Marca: ${carro.marca}`
-            tarjeta.appendChild(marca)
+  const cart = JSON.parse(window.localStorage.getItem("cart") || "[]");
+  cartIcon.setAttribute("data-content", cart.length);
 
-            const modelo = document.createElement("p")
-            modelo.textContent = `Modelo: ${carro.modelo}`
-            tarjeta.appendChild(modelo)
+  const addEventToButtons = () => {
+    const addEventToButtons = document.querySelectorAll(".add-to-cart-button");
 
-            const kilometraje = document.createElement("p")
-            kilometraje.textContent = `Kilometraje: ${carro.kilometraje}` 
-            tarjeta.appendChild(kilometraje)
+    addEventToButtons.forEach((button) => {
+      button.addEventListener("click", (event) => {
+        const productId = event.target.getAttribute("data-product-id");
+        const product = products.find((product) => product.id == productId);
 
-            contenedor.appendChild(tarjeta)
-        })
+        const cart = JSON.parse(window.localStorage.getItem("cart") || "[]");
+        cart.push(product);
+        window.localStorage.setItem("cart", JSON.stringify(cart));
+        cartIcon.setAttribute("data-content", cart.length);
+      });
+    });
+  };
 
-        body.appendChild(contenedor)
-      } else{
-        alert("No tenemos esa marca de carro")
+  addEventToButtons();
+
+  searchInput.addEventListener("search", (event) => {
+    const searchParam = event.currentTarget.value;
+
+    if (
+      searchParam === "" ||
+      searchParam === null ||
+      searchParam === undefined
+    ) {
+      productList.innerHTML = productsToDisplay;
+      addEventToButtons();
+      return;
+    }
+    const filtersProductsToDisplay = products
+      .filter((product) =>
+        product.title.toLowerCase().includes(searchParam.toLowerCase())
+      )
+      .map((product) => productCard(product))
+      .join("\n");
+    productList.innerHTML = filtersProductsToDisplay;
+    addEventToButtons();
+  });
+
+  categoriesFilters.forEach((categoryFilter) => {
+    categoryFilter.addEventListener("click", (event) => {
+      const searchParam = event.target.name;
+
+      if (
+        searchParam === "all categories" ||
+        searchParam === null ||
+        searchParam === undefined
+      ) {
+        productList.innerHTML = productsToDisplay;
+        addEventToButtons();
+        return;
       }
-
-  }
-  
-const botonParaFiltrar = document.getElementById("filtrar")
-botonParaFiltrar.addEventListener("click", filtrarCarros)
-
-function agregarCarro(){
-
-    const form = document.createElement('form')
-    form.innerHTML = `
-    <label for="marca-input">Marca:</label>
-    <input id="marca-input" type="text" required>
-
-    <label for="modelo-input">Modelo:</label>
-    <input id="modelo-input" type="number" required>
-
-    <label for="kilometraje-input">Kilometraje:</label>
-    <input id="kilometraje-input" type="number" required>
-
-    <button type='submit'>Agregar</button>
-    `
-    
-    form.addEventListener("submit", function(e) {
-        e.preventDefault()
-        
-        const marcaInput = document.getElementById('marca-input').value.trim()
-        const modeloInput = parseInt(document.getElementById('modelo-input').value)
-        const kilometrajeInput = parseInt(document.getElementById('kilometraje-input').value)
-        console.log()
-
-        console.log({ marcaInput, modeloInput, kilometrajeInput })
-        if(marcaInput === "" || isNaN(modeloInput) || isNaN(kilometrajeInput)){
-            alert("Ingresar valores validos")
-            return
-        }
-
-        const carro = new Carro (marcaInput, modeloInput, kilometrajeInput)
-
-        listaCarros.push(carro)
-
-        localStorage.setItem("carros", JSON.stringify(listaCarros))
-        alert(`Se agrego el carro ${carro.marca}`)
-
-        const contenedor = document.createElement("div")
-        listaCarros.forEach((carro) => {
-              const tarjeta = document.createElement("div")
-
-
-            const marca = document.createElement("h3")
-            marca.textContent =  `Marca: ${carro.marca}`
-            tarjeta.appendChild(marca)
-
-            const modelo = document.createElement("p")
-            modelo.textContent = `Modelo: ${carro.modelo}`
-            tarjeta.appendChild(modelo)
-
-            const kilometraje = document.createElement("p")
-            kilometraje.textContent = `Kilometraje: ${carro.kilometraje}` 
-            tarjeta.appendChild(kilometraje)
-
-            contenedor.appendChild(tarjeta)
-        })
-
-     const body = document.querySelector('body')
-     body.appendChild(contenedor)
-
-     form.reset()
-
-    })
-
-    const body = document.querySelector('body')
-    body.appendChild(form)
+      const filtersProductsToDisplay = products
+        .filter((product) =>
+          product.category.toLowerCase().includes(searchParam.toLowerCase())
+        )
+        .map((product) => productCard(product))
+        .join("\n");
+      productList.innerHTML = filtersProductsToDisplay;
+      addEventToButtons();
+    });
+  });
 }
 
-const botonParaAgregar = document.getElementById("agregar")
-botonParaAgregar.addEventListener("click", agregarCarro)
+main();
