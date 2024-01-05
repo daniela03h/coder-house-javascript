@@ -47,6 +47,13 @@ async function main() {
         cart.push(product);
         window.localStorage.setItem("cart", JSON.stringify(cart));
         cartIcon.setAttribute("data-content", cart.length);
+
+        Swal.fire({
+          title: "Product Added!",
+          text: "Your product was added to the cart",
+          icon: "success",
+          confirmButtonColor: "#0d6efd",
+        });
       });
     });
   };
